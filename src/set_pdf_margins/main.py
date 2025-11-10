@@ -16,8 +16,9 @@ Rectangle = tuple[float, float, float, float]
 def parse_gs_output(gs_output: str) -> list[Rectangle]:
     result = []
     for line in gs_output.splitlines()[1::2]:
-        _, left, bottom, right, top = line.split()
-        result.append((float(left), float(bottom), float(right), float(top)))
+        if line.startswith("%%HiResBoundingBox:"):
+            _, left, bottom, right, top = line.split()
+            result.append((float(left), float(bottom), float(right), float(top)))
     return result
 
 
@@ -28,11 +29,21 @@ def get_target_mediabox(
     page_size_x: float,
     page_size_y: float,
 ) -> Rectangle:
-    left, _, _, top = bounding_box
+    left, bottom, right, top = bounding_box
+
     target_left = left - margin_left
     target_top = top + margin_top
     target_bottom = target_top - page_size_y
     target_right = target_left + page_size_x
+
+    # If the content does not fit on the target page size, we increase the
+    # latter. In this case, we add small right and bottom margins, because
+    # ghostscript bounding boxes can be imprecise and crop off content.
+    if target_right < right:
+        target_right = right + MM_PT
+    if target_bottom > bottom:
+        target_bottom = bottom - MM_PT
+
     return (target_left, target_bottom, target_right, target_top)
 
 
@@ -58,6 +69,7 @@ def main(
         page_size_x *= MM_PT
         page_size_y *= MM_PT
 
+    print("Running ghostscript to get bounding boxes...")
     try:
         gs_result = subprocess.run(
             ["gs", "-dSAFER", "-dNOPAUSE", "-dBATCH", "-sDEVICE=bbox", pdf_input_path],
@@ -71,6 +83,7 @@ def main(
 
     bounding_boxes = parse_gs_output(gs_result.stderr)
 
+    print("Setting margins...")
     writer = PdfWriter(pdf_input_path)
     for page, bounding_box in zip(writer.pages, bounding_boxes):
         target_mediabox = RectangleObject(
@@ -85,6 +98,7 @@ def main(
         page.trimbox = target_mediabox
 
     writer.write(pdf_output_path)
+    print(f"Done. Output written to {pdf_output_path}")
 
 
 if __name__ == "__main__":
