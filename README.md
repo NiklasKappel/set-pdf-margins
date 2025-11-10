@@ -2,6 +2,23 @@
 
 This script places user-defined margins around the content of each page of a given PDF file. The left and top margins are given explicitly. The right and bottom margins result from explicitly given page sizes in horizontal (x) and vertical (y) directions. The page content is not rescaled. The document outline is preserved. This script is meant to facilitate PDF reading and margin note taking on tablets and e-readers. Note that correctly determining the bounding box of the content of a PDF page is difficult and your mileage may vary depending on your input PDF.
 
+**Installation**:
+
+> [!IMPORTANT]
+> `set-pdf-margins` requires [ghostscript](https://ghostscript.com) to be installed and available on your system.
+
+Install with `pip`:
+
+```console
+pip install set-pdf-margins
+```
+
+Or use `uvx`:
+
+```console
+uvx set-pdf-margins --help
+```
+
 **Usage**:
 
 ```console
