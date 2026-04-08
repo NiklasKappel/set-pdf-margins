@@ -6,7 +6,7 @@ import typer
 from pypdf import PdfWriter
 from pypdf.generic import RectangleObject
 
-MM_IN =    0.0393701
+MM_IN = 0.0393701
 IN_PT = 72
 MM_PT = MM_IN * IN_PT
 
