@@ -1,5 +1,7 @@
 name: Fix
 on: [push]
+permissions:
+  contents: write
 jobs:
   Fix:
     runs-on: ubuntu-latest
