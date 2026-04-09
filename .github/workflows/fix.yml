@@ -1,12 +1,9 @@
-name: Fix
-on:
-  push:
-    branches:
-      - main
+name: Lint and format
+on: [push]
 permissions:
   contents: write
 jobs:
-  Fix:
+  lint_and_format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -15,7 +12,7 @@ jobs:
       - run: uv run ruff format .
       - name: Commit and push
         run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
-          git commit -a -m "Fix" || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -a -m "chore: lint and format code" || exit 0
           git push
